@@ -48,7 +48,9 @@ public class GameManager : MonoBehaviour
         waveIndex = -1;
         CheckWaveState();
         Routine();
+        //MakeMarkersDisappear();
     }
+
 
     private void Update()
     {

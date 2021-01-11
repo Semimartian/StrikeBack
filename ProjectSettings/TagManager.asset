@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Wave++
+  - InvisibleOnPlay
   layers:
   - Default
   - TransparentFX
