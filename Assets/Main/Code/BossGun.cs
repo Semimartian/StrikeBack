@@ -5,7 +5,7 @@ using UnityEngine;
 public class BossGun : Bomb
 {
     [SerializeField] private Material mat;
-   /* [SerializeField] private Color colourAtFullHealth;
+    /*[SerializeField] private Color colourAtFullHealth;
     [SerializeField] private Color colourAtOneHealth;*/
     [SerializeField] private Color emmisionColour;
     [SerializeField] private float emmisionMultiplier;

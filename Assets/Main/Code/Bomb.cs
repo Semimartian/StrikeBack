@@ -14,7 +14,6 @@ public class Bomb : MonoBehaviour, IHittable, IExplodable
     void Start()
     {
         DoOnStart();
-
     }
 
     private void OnDrawGizmos()

@@ -17,7 +17,7 @@ public class StickManEnemy : MonoBehaviour, IHittable,IExplodable
     [SerializeField] private RagdollHandler ragdollHandler;
     [SerializeField] private Rigidbody[] heldItems;
 
-    //private sbyte hp = 4;
+    [SerializeField] private sbyte hp = 1;
 
     private void Start()
     {
@@ -37,12 +37,12 @@ public class StickManEnemy : MonoBehaviour, IHittable,IExplodable
         animator.SetTrigger("Idle");
     }
 
-    public  void Hit(Vector3 hitPosition, Vector3 hitForce)
+    public void Hit(Vector3 hitPosition, Vector3 hitForce)
     {
         if (isAlive)
         {
-           /* hp -= 1;
-            if(hp <= 0)*/
+            hp -= 1;
+            if(hp <= 0)
             {
                 Die();
                 ragdollHandler.EnableRagdoll();
