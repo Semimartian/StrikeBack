@@ -53,7 +53,7 @@ public class Shooter : StickManEnemy, IHittable,IExplodable
         }
         else
         {
-            Debug.Log("I am shooting");
+            Debug.Log("I am already shooting");
         }
     }
 
@@ -69,7 +69,7 @@ public class Shooter : StickManEnemy, IHittable,IExplodable
 
     private void ShootRoutine()
     {
-        if (isAwake)
+        if (isAwake && IsAlive)
         {
             /*float distanceFromPlayer = Vector3.Distance(myTransform.position, GameManager.playerPosition);
             if (distanceFromPlayer < shootingDistanceFromPlayer)*/

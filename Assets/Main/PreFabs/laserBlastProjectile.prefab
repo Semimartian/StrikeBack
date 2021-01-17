@@ -112,7 +112,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speedAtSpawn: 8
   speedAtDeflect: 12
-  hitForce: 350
+  hitForce: 620
 --- !u!136 &3970300126224863121
 CapsuleCollider:
   m_ObjectHideFlags: 0

@@ -95,8 +95,7 @@ public class StickManEnemy : MonoBehaviour, IHittable,IExplodable
         SoundNames soundName = (Random.Range(0, 4) > 0) ? SoundNames.Scream : SoundNames.Wilhelm;
        // Debug.Log(soundName.ToString());
         SoundManager.PlayOneShotSoundAt(soundName, myTransform.position);
-
-        GameManager.CheckWaveState();
+        GameManager.OnEnemyDeath();
     }
 
     public virtual void Awaken()

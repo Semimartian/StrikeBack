@@ -98,10 +98,8 @@ public class Boss : MonoBehaviour, IExplodable
         isAlive = false;
         //animator.SetTrigger("Die");
         collider.enabled = false;
-
         //SoundManager.PlayOneShotSoundAt(soundName, myTransform.position);
-
-        GameManager.CheckWaveState();
+      //  GameManager.CheckWaveState();
         GameManager.OnBossDeath();
 
     }

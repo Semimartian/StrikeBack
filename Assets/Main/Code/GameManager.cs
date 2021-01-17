@@ -1,37 +1,66 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     [System.Serializable]
-    public struct Wave
+    public class Wave
     {
-        public StickManEnemy[] enemiesToKill;
+        public WaveStates waveState;
+        public StickManEnemy[] enemiesToKill;     
+        public Boss boss;
+        public Animator cageAnimator;
+
     }
+
     public static Vector3 playerPosition;
     [SerializeField] private Transform playerTransform;
     [SerializeField] private PlayerController player;
 
     private static GameManager instance;
     public static bool allowAutomaticShooting =true;
+    [Header("Waves")]
+
     [SerializeField] private Wave[] waves;
     private static int waveIndex;
     private static StickManEnemy[] CurrentWaveEnemies
     {
         get { return instance.waves[waveIndex].enemiesToKill; }
     }
+    private static Wave CurrentWave
+    {
+        get { return instance.waves[waveIndex]; }
+    }
+
 
     public static StickManEnemy[] GetCurrentWaveEnemies()
     {
         return instance.waves[waveIndex].enemiesToKill;
     }
-    private static bool waitingForNextWave = false;
-    [Header("BossFight")]
-    [SerializeField] private Boss boss;
-    private static bool inBossFight = false;
 
-   void Start()
+    public enum WaveStates
+    {
+        NormalFight, BossFight, CageScene, Running
+    }
+    private static WaveStates DT_waveState;
+    private static WaveStates WaveState
+    {
+        get
+        {
+            return DT_waveState;
+        }
+        set
+        {
+            DT_waveState = value;
+            instance.waveStateText.text = "Wave State: " + DT_waveState.ToString();
+        }
+    }
+    [SerializeField] private Text waveStateText;
+    [SerializeField] private bool skipToBoss = false;
+
+    void Start()
     {
         instance = this;
         /* for (int j = 0; j < instance.waves.Length; j++)
@@ -44,11 +73,9 @@ public class GameManager : MonoBehaviour
          }*/
         // AwakeCurrentWave();
 
-
         waveIndex = -1;
-        CheckWaveState();
+        EndWave();
         Routine();
-        //MakeMarkersDisappear();
     }
 
 
@@ -56,26 +83,25 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.S))
         {
-            StickManEnemy[] enemies = CurrentWaveEnemies;
-            List<Shooter> livingShooters = new List<Shooter>();
-
-            for (int i = 0; i < enemies.Length; i++)
-            {
-                StickManEnemy enemy = enemies[i];
-                if (enemy is Shooter && enemy.IsAlive)
-                {
-                    livingShooters.Add((Shooter)enemy);
-                   /* Shooter shooter = (Shooter)enemies[i];
-                    if (shooter.IsAlive)
-                    {
-                        Debug.Log("TryShoot");
-                        shooter.TryShoot();
-                    }*/
-                }
-            }
-            int index = Random.Range(0, livingShooters.Count);
-            livingShooters[index].TryShoot();
+            MakeRandomEnemyShoot();
         }
+    }
+
+    private void MakeRandomEnemyShoot()
+    {
+        StickManEnemy[] enemies = CurrentWaveEnemies;
+        List<Shooter> livingShooters = new List<Shooter>();
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            StickManEnemy enemy = enemies[i];
+            if (enemy is Shooter && enemy.IsAlive)
+            {
+                livingShooters.Add((Shooter)enemy);
+            }
+        }
+        int index = Random.Range(0, livingShooters.Count);
+        livingShooters[index].TryShoot();
     }
 
     private void Routine()
@@ -85,24 +111,12 @@ public class GameManager : MonoBehaviour
         Invoke("Routine", 0.05f);
     }
 
-    public static void CheckWaveState()
+    private static void CheckIfCurrentWaveIsClear()
     {
-        if (inBossFight)
+        if (WaveState == WaveStates.NormalFight)
         {
-
-        }
-        else
-        {
-            if ( waveIndex > -1 && waveIndex < instance.waves.Length)
+            if (waveIndex > -1 && waveIndex < instance.waves.Length)
             {
-                /* Shooter[] shooters = instance.waves[waveIndex].shootersToKill;
-                 for (int i = 0; i < shooters.Length; i++)
-                 {
-                     if (shooters[i].IsAlive)
-                     {
-                         return;
-                     }
-                 }*/
 
                 StickManEnemy[] enemies = CurrentWaveEnemies;
                 for (int i = 0; i < enemies.Length; i++)
@@ -114,48 +128,64 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            waitingForNextWave = true;
-            instance.player.StartRunning();
-           MainCamera.instance.TransitionTo(CameraStates.Running);
+            EndWave();
+
         }
     }
 
-    public static void StartNextWave(bool bossTrigger)
+    private static void EndWave()
+    {
+        WaveState = WaveStates.Running;
+        instance.player.StartRunning();
+        MainCamera.instance.TransitionTo(CameraStates.Running);
+    }
+
+    public static void StartNextWave()
     {
 
         Debug.Log("Next Wave!");
         waveIndex++;
-        while(instance.waves[waveIndex].enemiesToKill.Length == 0 )
+        WaveStates newState = CurrentWave.waveState;
+
+       /* while (newState == WaveStates.NormalFight && instance.waves[waveIndex].enemiesToKill.Length == 0 )
         {
-            waveIndex++;
-        }
-        if (!bossTrigger)
+            StartNextWave();
+        }*/
+        if (instance.skipToBoss && newState != WaveStates.BossFight)
         {
-            //return;
+            return;
         }
 
+        WaveState = newState;
+
+        //Might be better to push these into the switch statement
         instance.player.StopRunning();
         AwakeCurrentWave();
-        if (bossTrigger)
+
+        switch (newState)
         {
-            inBossFight = true;
-            instance.StartCoroutine(instance.PlayBossScene());
-            MainCamera.instance.TransitionTo(CameraStates.Boss);
-        }
-        else
-        {
-            MainCamera.instance.TransitionTo(CameraStates.Action);
+           case WaveStates.NormalFight:
+               {
+                   MainCamera.instance.TransitionTo(CameraStates.Action);
+               }
+               break;
+           case WaveStates.BossFight:
+               {
+                   instance.StartCoroutine(instance.PlayBossScene());
+                   MainCamera.instance.TransitionTo(CameraStates.Boss);
+               }
+               break;
+            case WaveStates.CageScene:
+                {
+                    instance.StartCoroutine(instance.PlayCageScene());
+                   // MainCamera.instance.TransitionTo(CameraStates.Boss);
+                }
+                break;
         }
     }
-
+   
     private static void AwakeCurrentWave()
     {
-        /*Shooter[] shooters = instance.waves[waveIndex].shootersToKill;
-        for (int i = 0; i < shooters.Length; i++)
-        {
-            shooters[i].Awaken();
-        }*/
-
         StickManEnemy[] enemies = CurrentWaveEnemies;
         for (int i = 0; i < enemies.Length; i++)
         {
@@ -165,15 +195,22 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator PlayBossScene()
     {
+
         yield return new WaitForSeconds(0.3f);
-        boss.WakeUp();
+        CurrentWave.boss.WakeUp();
         yield return new WaitForSeconds(1.85f);
         instance.player.FRENZY();
     }
 
+    public static void OnEnemyDeath()
+    {
+        CheckIfCurrentWaveIsClear();
+    }
+
     public static void OnBossDeath()
     {
-        instance.StartCoroutine(instance.PlayVictoryScene());
+        //instance.StartCoroutine(instance.PlayVictoryScene());
+        instance.StartCoroutine(instance.OnBossDeathCoroutine());
     }
 
     public static void OnPlayerDeath()
@@ -201,6 +238,24 @@ public class GameManager : MonoBehaviour
         MainCamera.instance.TransitionTo(CameraStates.Running);
     }
 
+    private IEnumerator PlayCageScene()
+    {
+        yield return new WaitForSeconds(0.5f);
+        Animator cageAnimator = CurrentWave.cageAnimator;
+        cageAnimator.SetTrigger("Lift");
+        player.ForceLift(cageAnimator.transform.position);
+
+        yield return new WaitForSeconds(1f);
+
+    }
+
+    private IEnumerator OnBossDeathCoroutine()
+    {
+        player.EndFrenzy();
+        yield return new WaitForSeconds(1.5f);
+        EndWave();
+
+    }
 
 }
 

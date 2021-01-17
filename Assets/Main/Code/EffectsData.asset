@@ -16,7 +16,7 @@ MonoBehaviour:
   - name: 0
     preFab: {fileID: 19849376, guid: b5ff412d69b63ae49841bee8124e7d67, type: 3}
   - name: 1
-    preFab: {fileID: 19834012, guid: 12dc4df2adb9f444baa1fc32df61574b, type: 3}
+    preFab: {fileID: 19834012, guid: d30c7b86030f5784eb2e01bfeda49889, type: 3}
   - name: 2
     preFab: {fileID: 19878174, guid: bf4510e756bd13547a7c4cb4c35b62db, type: 3}
   - name: 3

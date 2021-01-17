@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour,IHittable
         rigidbody.rotation = rotation;
 
         string trigger = "Deflect";
-        trigger += Random.Range(0, 4).ToString();
+        trigger += Random.Range(0, animator.GetInteger("Deflects")).ToString();
         animator.SetTrigger(trigger);
         SoundManager.PlayOneShotSoundAt(SoundNames.LightSaberSwing, myPosition);
 
@@ -198,6 +198,16 @@ public class PlayerController : MonoBehaviour,IHittable
         SoundManager.PlayOneShotSoundAt(SoundNames.Deflect, deflectionPosition);
     }
 
+    internal void ForceLift(Vector3 lookAtPosition)
+    {
+        Vector3 direction = //projectile.transform.position - myTransform.position;
+        lookAtPosition - myTransform.position;
+        direction.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        rigidbody.rotation = rotation;
+
+        animator.SetTrigger("ForceLift");
+    }
 
     public void FRENZY()
     {
