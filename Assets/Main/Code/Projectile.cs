@@ -69,20 +69,20 @@ public class Projectile : MonoBehaviour
 
         if(lifeTime > 0.1f)//Cheap
         {
-            bool hitSomething = false;
+           // bool hitSomething = false;
             IHittable hittable = other.gameObject.GetComponentInParent<IHittable>();
 
             if (hittable != null)
             {
                 hittable.Hit(rigidbody.position, myTransform.forward * hitForce);
-                hitSomething = true;
+                //hitSomething = true;
             }
-            else if (other.gameObject.layer == 0)//Hmmmmmmmm
+           /* else if (other.gameObject.layer == 0)//Hmmmmmmmm
             {
                 hitSomething = true;
-            }
+            }*/
 
-            if (hitSomething)
+            //if (hitSomething)
             {
                 Hit();
             }

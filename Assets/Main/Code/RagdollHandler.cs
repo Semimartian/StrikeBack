@@ -15,12 +15,13 @@ public class RagdollHandler : MonoBehaviour
 
     void Start()
     {
+        InitialiseRagdoll();
         DisableRagdoll();
     }
 
-    public void EnableRagdoll()
+
+    private void InitialiseRagdoll()
     {
-        animator.enabled = false;
         for (int i = 0; i < bones.Length; i++)
         {
 
@@ -28,13 +29,30 @@ public class RagdollHandler : MonoBehaviour
             for (int j = 0; j < boneColliders.Length; j++)
             {
                 Collider collider = boneColliders[j];
-                collider.enabled = true;
-                collider.material = physicMaterial;//Hmmmmm maybe make am initialisationm method>?
+                collider.material = physicMaterial;
             }
             Rigidbody rigidbody = bones[i].GetComponent<Rigidbody>();
-            rigidbody.isKinematic = false;
             rigidbody.drag = drag;
             rigidbody.angularDrag = angularDrag;
+        }
+    }
+
+    public void EnableRagdoll()
+    {
+        animator.enabled = false;
+        for (int i = 0; i < bones.Length; i++)
+        {
+            GameObject bone = bones[i];
+            bone.layer = LayerMask.NameToLayer("IgnoreProjectiles");
+            Collider[] boneColliders = bone.GetComponents<Collider>();
+            for (int j = 0; j < boneColliders.Length; j++)
+            {
+                Collider collider = boneColliders[j];
+                collider.enabled = true;
+            }
+            Rigidbody rigidbody = bone.GetComponent<Rigidbody>();
+            rigidbody.isKinematic = false;
+
         }
         /*  for (int i = 0; i < bonesRigidBodies.Length; i++)
         {
