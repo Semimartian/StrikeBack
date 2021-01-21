@@ -35,6 +35,10 @@ public class PlayerController : MonoBehaviour,IHittable
     [SerializeField] private int blinksPerHit;
     [SerializeField] private float blinkInterval;
     private bool isBlinking = false;
+    [Header("Force Explosion")]
+    [SerializeField] private float explosionRadius;
+    [SerializeField] private float explosionForce;
+    [SerializeField] float explosionUpwardModifier;
     private void Awake()
     {
         myTransform = transform;
@@ -95,9 +99,9 @@ public class PlayerController : MonoBehaviour,IHittable
       //  cameraController.TransitionTo(CameraStates.Action);
     }
 
-    public void DANCE()
+    public void Dance()
     {
-        animator.SetTrigger("DANCE");
+        animator.SetTrigger("Dance");
     }
 
     private void FixedUpdate()
@@ -402,5 +406,37 @@ public class PlayerController : MonoBehaviour,IHittable
             yield return new WaitForSeconds(blinkInterval);
         }
         isBlinking = false;
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
+    }
+
+    public void ForceExplosion()
+    {
+        Vector3 explosionPosition = myTransform.position;
+        Collider[] colliders = Physics.OverlapSphere(explosionPosition, explosionRadius);
+
+        List<IExplodable> explodables = new List<IExplodable>();
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            IExplodable explodable = colliders[i].gameObject.GetComponentInParent<IExplodable>();
+
+            if (explodable != null)
+            {
+                if (!explodables.Contains(explodable))//TODO: Optimise...
+                {
+                    explodables.Add(explodable);
+                }
+            }
+        }
+
+        for (int i = 0; i < explodables.Count; i++)
+        {
+            explodables[i].Explode(explosionPosition, explosionForce, explosionRadius, explosionUpwardModifier);
+        }
+
     }
 }

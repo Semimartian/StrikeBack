@@ -8,15 +8,17 @@ public class GameManager : MonoBehaviour
     [System.Serializable]
     public class Wave
     {
+        //TODO: I would like to make it so that cage waves do not contain bosses, boss waves do not contain cages etc.
         public WaveStates waveState;
         public StickManEnemy[] enemiesToKill;     
         public Boss boss;
         public Animator cageAnimator;
-
+        public Animator cagedCreatureAnimator;
+        public Transform cameraStaticTransform;
     }
 
     public static Vector3 playerPosition;
-    [SerializeField] private Transform playerTransform;
+    [SerializeField] private Transform playerPositionTransform;
     [SerializeField] private PlayerController player;
 
     private static GameManager instance;
@@ -106,7 +108,7 @@ public class GameManager : MonoBehaviour
 
     private void Routine()
     {
-        playerPosition = instance.playerTransform.position;
+        playerPosition = instance.playerPositionTransform.position;
 
         Invoke("Routine", 0.05f);
     }
@@ -137,7 +139,7 @@ public class GameManager : MonoBehaviour
     {
         WaveState = WaveStates.Running;
         instance.player.StartRunning();
-        MainCamera.instance.TransitionTo(CameraStates.Running);
+        MainCamera.instance.SetOrientation(CameraOrientations.Running);
     }
 
     public static void StartNextWave()
@@ -151,7 +153,7 @@ public class GameManager : MonoBehaviour
         {
             StartNextWave();
         }*/
-        if (instance.skipToBoss && newState != WaveStates.BossFight)
+        if (instance.skipToBoss && newState == WaveStates.NormalFight)
         {
             return;
         }
@@ -166,13 +168,13 @@ public class GameManager : MonoBehaviour
         {
            case WaveStates.NormalFight:
                {
-                   MainCamera.instance.TransitionTo(CameraStates.Action);
+                   MainCamera.instance.SetOrientation(CameraOrientations.Action);
                }
                break;
            case WaveStates.BossFight:
                {
                    instance.StartCoroutine(instance.PlayBossScene());
-                   MainCamera.instance.TransitionTo(CameraStates.Boss);
+                   MainCamera.instance.SetOrientation(CameraOrientations.Boss);
                }
                break;
             case WaveStates.CageScene:
@@ -215,7 +217,7 @@ public class GameManager : MonoBehaviour
 
     public static void OnPlayerDeath()
     {
-        MainCamera.instance.TransitionTo(CameraStates.Running);
+        MainCamera.instance.SetOrientation(CameraOrientations.Running);
 
         Wave[] waves = instance.waves;
         for (int i = waveIndex; i < waves.Length; i++)
@@ -234,18 +236,22 @@ public class GameManager : MonoBehaviour
     {
         player.EndFrenzy();
         yield return new WaitForSeconds(1f);
-        player.DANCE();
-        MainCamera.instance.TransitionTo(CameraStates.Running);
+        player.Dance();
+        MainCamera.instance.SetOrientation(CameraOrientations.Running);
     }
 
     private IEnumerator PlayCageScene()
     {
+        MainCamera.instance.GoToStaticDestination(CurrentWave.cameraStaticTransform);
+
         yield return new WaitForSeconds(0.5f);
         Animator cageAnimator = CurrentWave.cageAnimator;
         cageAnimator.SetTrigger("Lift");
         player.ForceLift(cageAnimator.transform.position);
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2.9f);
+        player.Dance();
+        CurrentWave.cagedCreatureAnimator.SetTrigger("Dance");
 
     }
 
@@ -260,3 +266,5 @@ public class GameManager : MonoBehaviour
 }
 
 
+//0 - 1:25 הרמה
+//2:05 העפה

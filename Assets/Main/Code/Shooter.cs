@@ -11,7 +11,7 @@ public class Shooter : StickManEnemy, IHittable,IExplodable
     private bool isShooting = false;
     [SerializeField] private float minShootInterval;
     [SerializeField] private float maxShootInterval;
-
+    private Vector3 aimHumaniser = Vector3.zero;
     //private sbyte hp = 4;
     //[SerializeField] private float shootingDistanceFromPlayer;
     //[SerializeField] private Transform[] heldItems;
@@ -33,19 +33,27 @@ public class Shooter : StickManEnemy, IHittable,IExplodable
         if (lookAtPlayer && isAlive)
         {
             gunRigidbody.position = gunAnchor.position;
-
-            Vector3 playerPosition = GameManager.playerPosition;
-            Vector3 gunDirection = playerPosition - gunRigidbody.position;
+            //TODO: might be costly to randomise every frame
+            Vector3 aimPosition = GameManager.playerPosition + aimHumaniser;
+            Vector3 gunDirection = aimPosition - gunRigidbody.position;
             gunRigidbody.rotation = Quaternion.LookRotation(gunDirection);
 
-            Vector3 myDirection = playerPosition - myTransform.position;
+            Vector3 myDirection = aimPosition - myTransform.position;
             myDirection.y = 0;
             myTransform.rotation = Quaternion.LookRotation(myDirection);
         }   
     }
 
+    private void RandomiseAimHumaniser()
+    {
+        float range = 0.3f;
+        aimHumaniser = new Vector3
+            (Random.Range(-range, range), Random.Range(-range, range), Random.Range(-range, range));
+    }
+
     public void TryShoot()
     {
+        RandomiseAimHumaniser(); //NOTE: Why here..?
         if (!isShooting)
         {
             animator.SetTrigger("Shoot");

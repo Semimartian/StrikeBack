@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CameraStates:byte
+public enum CameraOrientations:byte
 {
     Running,Action,Boss
 }
 
 [System.Serializable]
-public struct CameraStateProperties 
+public struct CameraOrientationProperties 
 {
-    public CameraStates name;
+    public CameraOrientations name;
     public Transform anchorTransform;
 }
 
@@ -31,26 +31,30 @@ public class MainCamera : MonoBehaviour
 
     private Transform myTransform;
     private CameraAnchor anchor;
-    [SerializeField] private CameraStateProperties[] cameraStates;
+    [SerializeField] private CameraOrientationProperties[] cameraOrientations;
     [SerializeField] private Transform target;
     [SerializeField] private AnimationCurve transitionCurve;
-    private bool isTransitioning = false;
+    private enum CameraStates
+    {
+         Static, FollowingTarget , Transitioning,
+    }
+    private CameraStates state = CameraStates.FollowingTarget;
 
     private void Awake()
     {
         instance = this;
-        anchor = GetAnchor(CameraStates.Running);
+        anchor = GetAnchor(CameraOrientations.Running);
 
         myTransform = transform;
     }
 
-    private CameraAnchor GetAnchor(CameraStates name)
+    private CameraAnchor GetAnchor(CameraOrientations name)
     {
-        for (int i = 0; i < cameraStates.Length; i++)
+        for (int i = 0; i < cameraOrientations.Length; i++)
         {
-            if(name == cameraStates[i].name)
+            if(name == cameraOrientations[i].name)
             {
-                return new CameraAnchor(cameraStates[i].anchorTransform);
+                return new CameraAnchor(cameraOrientations[i].anchorTransform);
             }
         }
 
@@ -60,22 +64,22 @@ public class MainCamera : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isTransitioning)
+        if (state == CameraStates.FollowingTarget)
         {
             myTransform.position = 
               (target.position + anchor.positionOffset);
         }
     }
 
-    public void TransitionTo(CameraStates state)
+    public void SetOrientation(CameraOrientations orientation)
     {
-        anchor = GetAnchor(state);
-        StartCoroutine(TransitionCoroutine());
+        anchor = GetAnchor(orientation);
+        StartCoroutine(OrientateCoroutine());
     }
 
-    private IEnumerator TransitionCoroutine()
+    private IEnumerator OrientateCoroutine()
     {
-        isTransitioning = true;
+        state = CameraStates.Transitioning;
         Vector3 originalPosition = myTransform.position;
         Quaternion originalRotation = myTransform.rotation;
 
@@ -98,7 +102,39 @@ public class MainCamera : MonoBehaviour
 
         }
 
-        isTransitioning = false;
+        state = CameraStates.FollowingTarget;
 
+    }
+
+    public void GoToStaticDestination(Transform destination)
+    {
+        StartCoroutine(GoToStaticDestinationCoroutine(destination));
+    }
+
+    private IEnumerator GoToStaticDestinationCoroutine(Transform destination)
+    {
+        state = CameraStates.Transitioning;
+        Vector3 originalPosition = myTransform.position;
+        Quaternion originalRotation = myTransform.rotation;
+        Vector3 destinationPosition = destination.position;
+        Quaternion destinationRotation = destination.rotation;
+
+        float time = 0;
+        float endTime = transitionCurve.keys[transitionCurve.length - 1].time;
+
+        while (time < endTime)
+        {
+            //float deltaTime = Time.deltaTime;
+            time += Time.fixedDeltaTime;
+
+            float t = transitionCurve.Evaluate(time);
+            myTransform.position = Vector3.Lerp(originalPosition, destinationPosition, t);
+            myTransform.rotation = Quaternion.Lerp(originalRotation, destinationRotation, t);
+
+            yield return new WaitForFixedUpdate();
+
+        }
+
+        state = CameraStates.Static;
     }
 }

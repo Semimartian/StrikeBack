@@ -88,8 +88,11 @@ public class Boss : MonoBehaviour, IExplodable
     public void Explode(Vector3 explosionPosition, float explosionForce, float explosionRadius, float explosionUpwardModifier)
     {
         Debug.Log("Explode()");
-        Die();
-        ragdollHandler.EnableRagdoll();
+        if (isAlive)
+        {
+            Die();
+            ragdollHandler.EnableRagdoll();
+        }
         ragdollHandler.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, explosionUpwardModifier);
     }
 

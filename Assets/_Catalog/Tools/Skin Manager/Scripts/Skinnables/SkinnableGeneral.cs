@@ -85,9 +85,9 @@ public class SkinnableGeneral : Skinnable
         if(_renderer == null)
             _renderer = GetComponent<Renderer>();
         
-        if (EditorApplication.isPlaying)
+        /*if (EditorApplication.isPlaying)
             return _renderer.materials;
-        else
+        else*///commented out cause it was causeing problems building the game
             return _renderer.sharedMaterials;
     }
 
@@ -99,10 +99,10 @@ public class SkinnableGeneral : Skinnable
         List<ObjectColor> objectColors = new List<ObjectColor>();
 
         Material[] materials;
-        if (EditorApplication.isPlaying)
+        /*if (EditorApplication.isPlaying)
             materials = _renderer.materials;
-        else
-            materials = _renderer.sharedMaterials;
+        else*///commented out cause it was causeing problems building the game
+        materials = _renderer.sharedMaterials;
 
         for (int m = 0; m < _renderer.sharedMaterials.Length; m++)
         {
