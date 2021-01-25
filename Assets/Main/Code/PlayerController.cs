@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour,IHittable
 
     [SerializeField] private Transform mouseRayMarker;
     [SerializeField] private Camera camera;
+    [SerializeField] private Rigidbody laserSword;
 
     //[SerializeField] private float groundY;
 
@@ -39,6 +40,9 @@ public class PlayerController : MonoBehaviour,IHittable
     [SerializeField] private float explosionRadius;
     [SerializeField] private float explosionForce;
     [SerializeField] float explosionUpwardModifier;
+    private bool autoDeflecting = false;
+
+
     private void Awake()
     {
         myTransform = transform;
@@ -229,7 +233,6 @@ public class PlayerController : MonoBehaviour,IHittable
 
     }
 
-    private bool autoDeflecting = false;
 
     private IEnumerator AutoDeflectRoutine()
     {
@@ -389,6 +392,7 @@ public class PlayerController : MonoBehaviour,IHittable
 
     private void Die()
     {
+        DropSword();
         animator.SetTrigger("DEATH");
         GameManager.OnPlayerDeath();
     }
@@ -413,6 +417,12 @@ public class PlayerController : MonoBehaviour,IHittable
     }
 
 
+    private void DropSword()
+    {
+        laserSword.transform.SetParent(null);
+        laserSword.isKinematic = false;
+        //item.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, explosionUpwardModifier);
+    }
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
