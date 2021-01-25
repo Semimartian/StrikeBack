@@ -217,6 +217,7 @@ public class PlayerController : MonoBehaviour,IHittable
     {
 
         animator.SetBool("FRENZY",true);
+        autoDeflecting = true;
         StartCoroutine(AutoDeflectRoutine());
     }
 
@@ -224,13 +225,16 @@ public class PlayerController : MonoBehaviour,IHittable
     {
 
         animator.SetBool("FRENZY", false);
-        StopCoroutine(AutoDeflectRoutine());
+        autoDeflecting = false;
+
     }
+
+    private bool autoDeflecting = false;
 
     private IEnumerator AutoDeflectRoutine()
     {
         StickManEnemy[] waveEnemies = GameManager.GetCurrentWaveEnemies();
-        while (true)
+        while (autoDeflecting)
         {
             Vector3 myPosition = myTransform.position;
 
