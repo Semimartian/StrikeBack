@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerController player;
 
     private static GameManager instance;
-    public static bool allowAutomaticShooting =true;
+    public static bool allowAutomaticShooting =false;
     [Header("Waves")]
 
     [SerializeField] private Wave[] waves;
@@ -251,11 +251,18 @@ public class GameManager : MonoBehaviour
         cageAnimator.SetTrigger("Lift");
         player.ForceLift(cageAnimator.transform.position);
 
-       //LONG WAIT   yield return new WaitForSeconds(2.9f);
-        yield return new WaitForSeconds(2.9f/2);
-        player.Dance();
-        CurrentWave.cagedCreatureAnimator.SetTrigger("Dance");
+       //SHORT WAIT   yield return new WaitForSeconds(2.9f/2);
+        yield return new WaitForSeconds(2.9f);
 
+        if(waveIndex >= waves.Length-1)
+        {
+            player.Dance();
+            CurrentWave.cagedCreatureAnimator.SetTrigger("Dance");
+        }
+        else
+        {
+            EndWave();
+        }
     }
 
     private IEnumerator OnBossDeathCoroutine()
@@ -263,11 +270,6 @@ public class GameManager : MonoBehaviour
         player.EndFrenzy();
         yield return new WaitForSeconds(1.5f);
         EndWave();
-
     }
 
 }
-
-
-//0 - 1:25 הרמה
-//2:05 העפה
