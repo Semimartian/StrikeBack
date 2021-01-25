@@ -420,6 +420,7 @@ public class PlayerController : MonoBehaviour,IHittable
 
     public void ForceExplosion()
     {
+        return; //lel
         Vector3 explosionPosition = myTransform.position;
         Collider[] colliders = Physics.OverlapSphere(explosionPosition, explosionRadius);
 

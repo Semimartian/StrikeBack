@@ -234,14 +234,6 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private IEnumerator PlayVictoryScene()
-    {
-        player.EndFrenzy();
-        yield return new WaitForSeconds(1f);
-        player.Dance();
-        MainCamera.instance.SetOrientation(CameraOrientations.Running);
-    }
-
     private IEnumerator PlayCageScene()
     {
         MainCamera.instance.GoToStaticDestination(CurrentWave.cameraStaticTransform);
@@ -267,9 +259,18 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator OnBossDeathCoroutine()
     {
+        yield return new WaitForSeconds(0.7f);
         player.EndFrenzy();
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.4f);
         EndWave();
     }
 
+
+    /* private IEnumerator PlayVictoryScene()
+ {
+     player.EndFrenzy();
+     yield return new WaitForSeconds(1f);
+     player.Dance();
+     MainCamera.instance.SetOrientation(CameraOrientations.Running);
+ }*/
 }

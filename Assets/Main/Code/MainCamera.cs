@@ -34,11 +34,13 @@ public class MainCamera : MonoBehaviour
     [SerializeField] private CameraOrientationProperties[] cameraOrientations;
     [SerializeField] private Transform target;
     [SerializeField] private AnimationCurve transitionCurve;
+
     private enum CameraStates
     {
          Static, FollowingTarget , Transitioning,
     }
     private CameraStates state = CameraStates.FollowingTarget;
+    private int externalTransitionTracker = 0;
 
     private void Awake()
     {
@@ -79,6 +81,10 @@ public class MainCamera : MonoBehaviour
 
     private IEnumerator OrientateCoroutine()
     {
+        int internalTransitionTracker = ++externalTransitionTracker;
+        /*Debug.Log("internalTransitionTracker: " + internalTransitionTracker);
+        Debug.Log("externalTransitionTracker: " + externalTransitionTracker);*/
+
         state = CameraStates.Transitioning;
         Vector3 originalPosition = myTransform.position;
         Quaternion originalRotation = myTransform.rotation;
@@ -86,7 +92,7 @@ public class MainCamera : MonoBehaviour
         float time = 0;
         float endTime = transitionCurve.keys[transitionCurve.length - 1].time;
 
-        while (time < endTime)
+        while (time < endTime && (internalTransitionTracker == externalTransitionTracker))
         {
             //float deltaTime = Time.deltaTime;
             time += Time.fixedDeltaTime;
@@ -101,8 +107,10 @@ public class MainCamera : MonoBehaviour
             yield return new WaitForFixedUpdate();
 
         }
-
-        state = CameraStates.FollowingTarget;
+        if (internalTransitionTracker == externalTransitionTracker)
+        {
+            state = CameraStates.FollowingTarget;
+        }
 
     }
 
@@ -113,6 +121,7 @@ public class MainCamera : MonoBehaviour
 
     private IEnumerator GoToStaticDestinationCoroutine(Transform destination)
     {
+        int internalTransitionTracker = ++externalTransitionTracker;
         state = CameraStates.Transitioning;
         Vector3 originalPosition = myTransform.position;
         Quaternion originalRotation = myTransform.rotation;
@@ -122,7 +131,7 @@ public class MainCamera : MonoBehaviour
         float time = 0;
         float endTime = transitionCurve.keys[transitionCurve.length - 1].time;
 
-        while (time < endTime)
+        while (time < endTime && (internalTransitionTracker == externalTransitionTracker))
         {
             //float deltaTime = Time.deltaTime;
             time += Time.fixedDeltaTime;
@@ -134,7 +143,9 @@ public class MainCamera : MonoBehaviour
             yield return new WaitForFixedUpdate();
 
         }
-
-        state = CameraStates.Static;
+        if((internalTransitionTracker == externalTransitionTracker))
+        {
+            state = CameraStates.Static;
+        }
     }
 }

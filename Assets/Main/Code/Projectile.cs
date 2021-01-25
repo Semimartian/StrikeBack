@@ -13,9 +13,11 @@ public class Projectile : MonoBehaviour
     private Transform myTransform;
     private float lifeTime = 0;
     private bool deflected = false;
+    private bool isActive = true;
 
     void Start()
     {
+        isActive = true;
         rigidbody = GetComponent<Rigidbody>();
         myTransform = transform;
         lifeTime = 0;
@@ -39,6 +41,8 @@ public class Projectile : MonoBehaviour
     private void Hit()
     {
         EffectsManager.PlayEffectAt(EffectNames.BlastExplosion, transform.position);
+
+        isActive = false;
         Destroy(gameObject);
     }
 
@@ -67,7 +71,7 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
 
-        if(lifeTime > 0.1f)//Cheap
+        if(lifeTime > 0.1f && isActive) 
         {
            // bool hitSomething = false;
             IHittable hittable = other.gameObject.GetComponentInParent<IHittable>();
