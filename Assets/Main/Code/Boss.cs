@@ -106,4 +106,9 @@ public class Boss : MonoBehaviour, IExplodable
         GameManager.OnBossDeath();
 
     }
+    public void StartDancing()
+    {
+        myAnimator.SetTrigger("Dance");
+       
+    }
 }

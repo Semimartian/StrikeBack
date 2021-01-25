@@ -46,7 +46,7 @@ public class Shooter : StickManEnemy, IHittable,IExplodable
 
     private void RandomiseAimHumaniser()
     {
-        float range = 0.3f;
+        float range = 0.1f;
         aimHumaniser = new Vector3
             (Random.Range(-range, range), Random.Range(-range, range), Random.Range(-range, range));
     }
