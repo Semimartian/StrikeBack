@@ -230,6 +230,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        FindObjectOfType<Boss>().StartDancing();
+
     }
 
     private IEnumerator PlayVictoryScene()
@@ -249,6 +251,7 @@ public class GameManager : MonoBehaviour
         cageAnimator.SetTrigger("Lift");
         player.ForceLift(cageAnimator.transform.position);
 
+       //SHORT WAIT   yield return new WaitForSeconds(2.9f/2);
         yield return new WaitForSeconds(2.9f);
 
         if(waveIndex >= waves.Length-1)
